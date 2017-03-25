@@ -1,8 +1,5 @@
 import json
-from logging import info, debug
 
-import requests
-from clarifai.rest import ClarifaiApp
 from django.conf import settings
 from django.http import HttpResponse
 # Create your views here.
@@ -10,56 +7,36 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 # Helper function
 from django.views.decorators.csrf import csrf_exempt
+from users import food, wolfram
+from users.fb_bot import send_message, user_details
 
 
-def answer_text(fbid, recevied_message):
-    user_details_url = "https://graph.facebook.com/v2.6/%s" % fbid
-    user_details_params = {'fields': 'first_name,last_name,profile_pic', 'access_token': settings.FB_TOKEN}
-    user_details = requests.get(user_details_url, user_details_params).json()
-    response = 'Yo ' + user_details[
-        'first_name'] + ', send me a picture so I can recognize it!'
+# Bot answers
+
+def initial_text(fbid, recevied_message):
+    # Get user details
+    details = user_details(fbid)
+    response = 'Hi ' + details['first_name'] + ', send me a picture so I can recognize it!'
     send_message(fbid, response)
 
 
-def send_message(fbid, answer, quick_replies=None):
-    post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s' % settings.FB_TOKEN
-    if quick_replies:
-        response = {"recipient": {"id": fbid}, "message": {"text": answer, 'quick_replies': quick_replies}}
-    else:
-        response = {"recipient": {"id": fbid}, "message": {"text": answer}}
-    status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=json.dumps(response))
-    info(status.json())
+def analyze_pic(fbid, image_url):
+    topics = food.extract(image_url)
+    send_message(fbid, 'Choose the correct option:', quick_replies=(topics[:5]))
 
 
-def analyze_food(fbid, image_url):
-    # Remove all punctuations, lower case the text and split it based on space
-
-    topics = food(image_url)
-    qr = [{'content_type': 'text', 'title': topic, 'payload': topic} for topic in topics[:5]]
-
-    send_message(fbid, 'Choose the correct option:', quick_replies=qr)
-
-
-def food(url):
-    app = ClarifaiApp(settings.CLARIFAI_APP_ID, settings.CLARIFAI_APP_SECRET)
-
-    # get the general model
-    model = app.models.get("food-items-v1.0")
-
-    # predict with the model
-    debug(url)
-    res = model.predict_by_url(url=url)
-    res = map(lambda x: x['name'], res['outputs'][0]['data']['concepts'])
-    return res
-
-
+# Test request. TODO: DELETE THIS
 def test_food(request):
-    res = food(
+    res = food.extract(
         'https://scontent.xx.fbcdn.net/v/t34.0-12/17496094_10208759653813233_938158810_n.jpg?_nc_ad=z-m&oh=479263e3f66abfc57b82db0bafe37062&oe=58D85803')
-    return HttpResponse(json.dumps([{'content_type': 'text', 'title': topic, 'payload': topic} for topic in res[:5]]))
+    return HttpResponse(json.dumps(res))
 
 
 class MessengerBotView(generic.View):
+    """
+    Main messenger view
+    """
+
     def get(self, request, *args, **kwargs):
         token = request.GET.get('hub.verify_token', '')
         if token == settings.FB_TOKEN:
@@ -80,21 +57,30 @@ class MessengerBotView(generic.View):
                 # Check to make sure the received call is a message call
                 # This might be delivery, optin, postback for other events
                 fbid = message['sender']['id']
-                if 'message' in message and 'attachments' in message['message'] and 'image' in map(lambda x: x['type'],
-                                                                                                   message['message'][
-                                                                                                       'attachments']):
-                    # Print the message to the terminal
 
-                    # Assuming the sender only sends text. Non-text messages like stickers, audio, pictures
-                    # are sent as attachments and must be handled accordingly.
-                    for attachment in message['message']['attachments']:
+                # 0th case: No message
+                if 'message' not in message:
+                    continue
+                # 1st case: Image sent by user
+                if 'quick_reply' in message['message']:
+                    selected = message['message']['quick_reply']['payload']
+                    calories = wolfram.get_calories(selected)
+                    send_message(fbid, 'This was %s calories' % calories)
+                elif 'attachments' in message['message'] and 'image' in map(lambda x: x['type'],
+                                                                            message['message']['attachments']):
+                    # Analize only first image. TODO: Analize the rest
+                    ats = len(message['message']['attachments'])
+                    if ats > 1:
+                        send_message(fbid, 'Only 1 at a time')
+                        continue
 
-                        if attachment['type'] == 'image':
-                            url = attachment['payload']['url']
-                            analyze_food(fbid, url)
-                elif 'message' in message:
-                    answer_text(fbid, message['message']['text'])
+                    attachment = message['message']['attachments'][0]
+                    if attachment['type'] == 'image':
+                        url = attachment['payload']['url']
+                        analyze_pic(fbid, url)
 
-                info(message)
+                # 3rd case: No message
+                elif 'text' in message['message']:
+                    initial_text(fbid, message['message']['text'])
 
         return HttpResponse()
