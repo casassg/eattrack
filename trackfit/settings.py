@@ -112,9 +112,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR + '/staticfiles'
 
 WOLFRAM_ID = os.environ.get('WOLFRAM_ID', '')
 
-
-CLARIFAI_APP_ID = os.environ.get('CLARIFAI_APP_ID','')
-CLARIFAI_APP_SECRET = os.environ.get('CLARIFAI_APP_SECRET','')
+CLARIFAI_APP_ID = os.environ.get('CLARIFAI_APP_ID', '')
+CLARIFAI_APP_SECRET = os.environ.get('CLARIFAI_APP_SECRET', '')
