@@ -1,7 +1,7 @@
 from django.conf.urls import url
-from users.views import food, MessengerBotView
+from users.views import MessengerBotView
 
 urlpatterns = [
-    url(r'^test/$', food),
-    url(r'^messenger/$', MessengerBotView.as_view())
+    url(r'^messenger/$', MessengerBotView.as_view()),
+
 ]
