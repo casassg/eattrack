@@ -17,10 +17,17 @@ def answer_text(fbid, recevied_message):
     user_details_params = {'fields': 'first_name,last_name,profile_pic', 'access_token': settings.FB_TOKEN}
     user_details = requests.get(user_details_url, user_details_params).json()
     response = 'Yo ' + user_details[
-        'first_name'] + ', send me a picture so I can recognize it! You said: ' + recevied_message
+        'first_name'] + ', send me a picture so I can recognize it!'
+    send_message(fbid, response)
+
+
+def send_message(fbid, answer, quick_replies=None):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s' % settings.FB_TOKEN
-    response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": response}})
-    status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+    if quick_replies:
+        response = {"recipient": {"id": fbid}, "message": {"text": answer, 'quick_replies': quick_replies}}
+    else:
+        response = {"recipient": {"id": fbid}, "message": {"text": answer}}
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=json.dumps(response))
     info(status.json())
 
 
@@ -28,8 +35,9 @@ def analyze_food(fbid, image_url):
     # Remove all punctuations, lower case the text and split it based on space
 
     topics = food(image_url)
+    qr = [{'content_type': 'text', 'title': topic, 'payload': topic} for topic in topics[:5]]
 
-    answer_text(fbid, topics)
+    send_message(fbid, 'Choose the correct option')
 
 
 def food(url):
@@ -42,8 +50,6 @@ def food(url):
     debug(url)
     res = model.predict_by_url(url=url)
     res = map(lambda x: x['name'], res['outputs'][0]['data']['concepts'])
-    res = ', '.join(res[:3])
-
     return res
 
 
@@ -85,7 +91,6 @@ class MessengerBotView(generic.View):
                         if attachment['type'] == 'image':
                             url = attachment['payload']['url']
                             analyze_food(fbid, url)
-                            answer_text(fbid, url)
                 elif 'message' in message:
                     answer_text(fbid, message['message']['text'])
 
