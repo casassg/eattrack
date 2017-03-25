@@ -37,7 +37,7 @@ def analyze_food(fbid, image_url):
     topics = food(image_url)
     qr = [{'content_type': 'text', 'title': topic, 'payload': topic} for topic in topics[:5]]
 
-    send_message(fbid, 'Choose the correct option')
+    send_message(fbid, 'Choose the correct option:', quick_replies=qr)
 
 
 def food(url):
@@ -54,8 +54,9 @@ def food(url):
 
 
 def test_food(request):
-    return HttpResponse(json.dumps(food(
-        'https://scontent.xx.fbcdn.net/v/t34.0-12/17496094_10208759653813233_938158810_n.jpg?_nc_ad=z-m&oh=479263e3f66abfc57b82db0bafe37062&oe=58D85803')))
+    res = food(
+        'https://scontent.xx.fbcdn.net/v/t34.0-12/17496094_10208759653813233_938158810_n.jpg?_nc_ad=z-m&oh=479263e3f66abfc57b82db0bafe37062&oe=58D85803')
+    return HttpResponse(json.dumps([{'content_type': 'text', 'title': topic, 'payload': topic} for topic in res[:5]]))
 
 
 class MessengerBotView(generic.View):
