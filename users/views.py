@@ -20,7 +20,7 @@ def food(request):
 
 
 def messenger(request):
-    token = request.GET['hub.verify_token']
+    token = request.GET.get('hub.verify_token','')
     if token == 'gerardcasassaez':
         return HttpResponse(request.GET['hub.challenge'])
     else:

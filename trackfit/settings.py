@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+ALLOWED_HOSTS = [u'trackeat.herokuapp.com',u'localhost']
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,7 +26,6 @@ SECRET_KEY = 'kzl44w4&yp+mdo&o!232swd3m-7fk1vh=nwi0iky72b^=&!wh$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 # Application definition
 
