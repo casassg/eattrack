@@ -116,6 +116,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "users/static"),
 ]
 
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'    
+
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR + '/staticfiles'
 
