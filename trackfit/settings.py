@@ -119,3 +119,4 @@ WOLFRAM_ID = os.environ.get('WOLFRAM_ID', '')
 
 CLARIFAI_APP_ID = os.environ.get('CLARIFAI_APP_ID', '')
 CLARIFAI_APP_SECRET = os.environ.get('CLARIFAI_APP_SECRET', '')
+FB_TOKEN = os.environ.get('TOKEN','')
