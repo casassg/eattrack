@@ -16,13 +16,13 @@ from users.fb_bot import send_message, user_details
 def initial_text(fbid, recevied_message):
     # Get user details
     details = user_details(fbid)
-    response = 'Hi ' + details['first_name'] + ', send me a picture so I can recognize it!'
-    send_message(fbid, response)
+    send_message(fbid, 'Welcome ' + details['first_name'] + ', let me help you keep track of what you eat.')
+    send_message(fbid, ' Just send me a picture of what you are eating so I can recognize it!')
 
 
 def analyze_pic(fbid, image_url):
     topics = food.extract(image_url)
-    send_message(fbid, 'Choose the correct option:', quick_replies=(topics[:5]))
+    send_message(fbid, 'What\'s the closest guess?', quick_replies=(topics[:5]))
 
 
 # Test request. TODO: DELETE THIS
@@ -42,7 +42,7 @@ class MessengerBotView(generic.View):
         if token == settings.FB_TOKEN:
             return HttpResponse(request.GET['hub.challenge'])
         else:
-            return HttpResponse('Not correct')
+            return HttpResponse('BIENE')
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -61,17 +61,18 @@ class MessengerBotView(generic.View):
                 # 0th case: No message
                 if 'message' not in message:
                     continue
-                # 1st case: Image sent by user
+                # 1st case: Quick reply with aliment
                 if 'quick_reply' in message['message']:
                     selected = message['message']['quick_reply']['payload']
                     calories = wolfram.get_calories(selected)
                     send_message(fbid, 'This was %s calories' % calories)
+                # 2nd case: Image sent to be recognized
                 elif 'attachments' in message['message'] and 'image' in map(lambda x: x['type'],
                                                                             message['message']['attachments']):
                     # Analize only first image. TODO: Analize the rest
                     ats = len(message['message']['attachments'])
                     if ats > 1:
-                        send_message(fbid, 'Only 1 at a time')
+                        send_message(fbid, 'Only 1 at a time please! They haven\'t taught me better!')
                         continue
 
                     attachment = message['message']['attachments'][0]
