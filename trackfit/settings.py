@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
+import sys
 
 import os
 
-ALLOWED_HOSTS = [u'trackeat.herokuapp.com',u'localhost']
+ALLOWED_HOSTS = [u'trackeat.herokuapp.com', u'localhost']
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,6 @@ SECRET_KEY = 'kzl44w4&yp+mdo&o!232swd3m-7fk1vh=nwi0iky72b^=&!wh$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 
 # Application definition
 
@@ -119,4 +119,4 @@ WOLFRAM_ID = os.environ.get('WOLFRAM_ID', '')
 
 CLARIFAI_APP_ID = os.environ.get('CLARIFAI_APP_ID', '')
 CLARIFAI_APP_SECRET = os.environ.get('CLARIFAI_APP_SECRET', '')
-FB_TOKEN = os.environ.get('TOKEN','')
+FB_TOKEN = os.environ.get('TOKEN', '')

@@ -27,10 +27,9 @@ def answer_text(fbid, recevied_message):
 def analyze_food(fbid, image_url):
     # Remove all punctuations, lower case the text and split it based on space
 
-    joke_text = 'Here\'s your description:'
-    res_food = food(image_url)
-    joke_text += '\n\n\n' + json.dumps(res_food)
-    answer_text(fbid, joke_text)
+    topics = food(image_url)
+
+    answer_text(fbid, topics)
 
 
 def food(url):
@@ -42,7 +41,15 @@ def food(url):
     # predict with the model
     debug(url)
     res = model.predict_by_url(url=url)
+    res = map(lambda x: x['name'], res['outputs'][0]['data']['concepts'])
+    res = ', '.join(res[:3])
+
     return res
+
+
+def test_food(request):
+    return HttpResponse(json.dumps(food(
+        'https://scontent.xx.fbcdn.net/v/t34.0-12/17496094_10208759653813233_938158810_n.jpg?_nc_ad=z-m&oh=479263e3f66abfc57b82db0bafe37062&oe=58D85803')))
 
 
 class MessengerBotView(generic.View):
@@ -77,8 +84,7 @@ class MessengerBotView(generic.View):
 
                         if attachment['type'] == 'image':
                             url = attachment['payload']['url']
-                            analyze_food(fbid,
-                                         url)
+                            analyze_food(fbid, url)
                             answer_text(fbid, url)
                 elif 'message' in message:
                     answer_text(fbid, message['message']['text'])

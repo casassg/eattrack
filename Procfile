@@ -1,1 +1,1 @@
-web: gunicorn trackfit.wsgi
+web: gunicorn trackfit.wsgi --log-file=-
