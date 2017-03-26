@@ -142,21 +142,20 @@ class LineChartJSONView(BaseLineChartView):
     def get_labels(self):
         """Return 7 labels."""
         today = DT.date.today()
-        week = [today - DT.timedelta(days=6-i) for i in range(7)]
+        week = [today - DT.timedelta(days=6 - i) for i in range(7)]
         return map(lambda x: x.strftime('%d/%m'), week)
 
     def get_data(self):
         """Return 3 datasets to plot."""
         fbid = self.request.GET.get('fbid', '')
-        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values(
-            'day').annotate(
-            t_calories=Sum('calories')).values('day', 't_calories')
-        cals = list(map(lambda x: x['t_calories'], readings))
-        res = []
-        for i in range(7):
-            if len(cals) + i >= 7:
-                res += [cals[6 - i], ]
-            else:
-                res += [0, ]
+        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values('day')\
+            .annotate(t_calories=Sum('calories')).values('day', 't_calories')
+        cals = list(map(lambda x: (x['day'].strftime('%d/%m'), x['t_calories']), readings))
+        res = [0 for _ in range(7)]
+        labels = self.get_labels()
+        for day,cal in cals:
+            ind = labels.index(day)
+            if ind > 0 and ind < 7:
+                res[ind] = cal
 
         return [res, [], []]
