@@ -120,9 +120,9 @@ class MessengerBotView(generic.View):
                 # 3rd case: No message
                 elif 'text' in message['message']:
                     text = message['message']['text']
-                    if 'stats' in text or 'data' in text:
+                    if 'stats' in text.lower() or 'data' in text.lower():
                         url = reverse('user_stats', kwargs={'fbid': fbid}, request=request)
-                        fb_bot.send_message(fbid, url)
+                        fb_bot.send_message(fbid, "Here are your usage stats, just for you!\n\n" + url)
                         continue
                     initial_text(fbid, text)
                 else:
