@@ -22,7 +22,30 @@
                         <h3 class="panel-title">Most consumed products</h3>
                     </div>
                     <div class="panel-body">
-                        <canvas id="barChar1"></canvas>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Count</th>
+                                <th>Total calories</th>
+                            </tr>
+                            </thead>
+
+                            {% for prod in condensed %}
+                                <tr>
+                                    <td>{{ prod.product }}</td>
+                                    <td>{{ prod.count }}</td>
+                                    <td>{{ prod.cals }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -62,16 +85,12 @@
         </div>
     </div>
     <script type="text/javascript">
-    $(function () {
-        jQuery.get('{% url "line_chart_json" %}?fbid={{ fbid }}', function (data) {
-            var ctx = $("#myChart").get(0).getContext("2d");
-            new Chart(ctx).Line(data, {responsive:true});
+        $(function () {
+            jQuery.get('{% url "line_chart_json" %}?fbid={{ fbid }}', function (data) {
+                var ctx = $("#myChart").get(0).getContext("2d");
+                new Chart(ctx).Line(data, {responsive: true});
+            });
         });
-        jQuery.get('{% url 'column_chart_json' %}?fbid={{ fbid }}', function (data) {
-            var ctx = $("#barChar1").get(0).getContext("2d");
-            new Chart(ctx).Bar(data, {responsive:true});
-        });
-    });
 
 
     </script>

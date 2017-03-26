@@ -1,11 +1,9 @@
 import datetime as DT
 import json
-from datetime import datetime
 
-from chartjs.views.columns import BaseColumnsHighChartsView
 from chartjs.views.lines import BaseLineChartView
 from django.conf import settings
-from django.db.models.aggregates import Count
+from django.db.models.aggregates import Count, Sum
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -136,7 +134,10 @@ class MessengerBotView(generic.View):
 
 def analytics(request, fbid):
     readings = models.Reading.objects.filter(user_id=fbid)
-    return render(request, 'analytics.html', context={'readings': readings, 'fbid': fbid}, )
+    condensed = models.Reading.objects.filter(user_id=fbid).values('product') \
+        .annotate(count=Count('product'), cals=Sum('calories')) \
+        .values('product', 'count', 'cals')
+    return render(request, 'analytics.html', context={'readings': readings, 'fbid': fbid, 'condensed': condensed}, )
 
 
 class LineChartJSONView(BaseLineChartView):
@@ -157,24 +158,3 @@ class LineChartJSONView(BaseLineChartView):
                 if label == read['timestamp'].strftime('%d/%m'):
                     res[i] += read['calories']
         return [res, [], []]
-
-
-class ColumnHighChartJSONView(BaseColumnsHighChartsView):
-    title = ''
-    yUnit = 'number of usages'
-    providers = ['All', ]
-    credits = {"enabled": False}
-
-    def get_most_consumed_products(self, fbid):
-        prods = models.Reading.objects.filter(user_id=fbid).values('product') \
-            .annotate(count=Count('product')).values('product', 'count').order_by('-count')
-        return prods[:7]
-
-    def get_labels(self):
-        """Return 7 labels."""
-        fbid = self.request.GET.get('fbid', '')
-        return [prod['product'] for prod in self.get_most_consumed_products(fbid)]
-
-    def get_data(self):
-        fbid = self.request.GET.get('fbid', '')
-        return [[prod['count'] for prod in self.get_most_consumed_products(fbid)], ]
