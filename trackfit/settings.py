@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 import sys
 
+import dj_database_url
 import os
 
 ALLOWED_HOSTS = [u'trackeat.herokuapp.com', u'localhost']
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +128,6 @@ WOLFRAM_ID = os.environ.get('WOLFRAM_ID', '')
 CLARIFAI_APP_ID = os.environ.get('CLARIFAI_APP_ID', '')
 CLARIFAI_APP_SECRET = os.environ.get('CLARIFAI_APP_SECRET', '')
 FB_TOKEN = os.environ.get('TOKEN', '')
+
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)

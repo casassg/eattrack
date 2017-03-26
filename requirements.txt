@@ -2,6 +2,7 @@ appdirs==1.4.3
 clarifai==2.0.20
 click==6.7
 configparser==3.5.0
+dj-database-url==0.4.2
 Django==1.10.6
 functools32==3.2.3.post2
 future==0.15.2

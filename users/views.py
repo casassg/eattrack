@@ -7,7 +7,9 @@ from django.utils.decorators import method_decorator
 from django.views import generic
 # Helper function
 from django.views.decorators.csrf import csrf_exempt
-from users import food, wolfram, fb_bot
+from users import food, wolfram, fb_bot, models
+
+OTHER_VALUE = 'Other'
 
 
 # Bot answers
@@ -17,11 +19,6 @@ def initial_text(fbid, recevied_message):
     details = fb_bot.user_details(fbid)
     fb_bot.send_message(fbid, 'Welcome ' + details['first_name'] + ', let me help you keep track of what you eat.')
     fb_bot.send_message(fbid, ' Just send me a picture of what you are eating so I can recognize it!')
-
-
-def analyze_pic(fbid, image_url):
-    topics = food.extract(image_url)
-    fb_bot.send_message(fbid, 'What\'s the closest guess?', topics=(topics[:5]))
 
 
 # Test request. TODO: DELETE THIS
@@ -53,9 +50,10 @@ class MessengerBotView(generic.View):
         # multiple messages in a single call during high load
         for entry in incoming_message['entry']:
             for message in entry['messaging']:
+                fbid = message['sender']['id']
+
                 # Check to make sure the received call is a message call
                 # This might be delivery, optin, postback for other events
-                fbid = message['sender']['id']
 
                 # 0th case: No message
                 if 'message' not in message:
@@ -77,12 +75,12 @@ class MessengerBotView(generic.View):
                         continue
 
                     top_funct = {
-                        'half': lambda x: x / 2,
-                        'third part': lambda x: x / 3,
-                        'quarter part': lambda x: x / 4,
-                        'an eigth': lambda x: x / 8,
+                        'half': lambda x: x / 2.0,
+                        'third part': lambda x: x / 3.0,
+                        'quarter part': lambda x: x / 4.0,
+                        'an eigth': lambda x: x / 8.0,
                         '1 full': lambda x: x,
-                        '2 of them': lambda x: x * 2,
+                        '2 of them': lambda x: x * 2.0,
                     }
 
                     qr = fb_bot.create_quick_replies_quantities(top_funct, calories, quick_reply)
@@ -99,10 +97,13 @@ class MessengerBotView(generic.View):
                     attachment = message['message']['attachments'][0]
                     if attachment['type'] == 'image':
                         url = attachment['payload']['url']
-                        analyze_pic(fbid, url)
+                        topics = food.extract(url)
+                        fb_bot.send_message(fbid, 'What\'s the closest guess?', topics=(topics[:5]))
 
                 # 3rd case: No message
-                elif 'text' in message['message']:
+                elif 'text' in message['message'] and not models.AppUser.objects.filter(fbid=fbid).exists():
                     initial_text(fbid, message['message']['text'])
+                else:
+                    fb_bot.send_message(fbid, "I'm sorry, I couldn't understand you.")
 
         return HttpResponse()
