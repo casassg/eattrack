@@ -164,6 +164,11 @@ class LineChartJSONView(BaseLineChartView):
 
 
 class ColumnHighChartJSONView(BaseColumnsHighChartsView):
+    title = ''
+    yUnit = 'number of usages'
+    providers = ['All']
+    credits = {"enabled": False}
+
     def get_most_consumed_products(self, fbid):
         prods = models.Reading.objects.filter(user_id=fbid).values('product') \
             .annotate(count=Count('product')).values('product', 'count').order_by('-count')
