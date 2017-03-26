@@ -148,5 +148,12 @@ class LineChartJSONView(BaseLineChartView):
         readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values(
             'day').annotate(
             t_calories=Sum('calories')).values('day', 't_calories')
+        cals = list(map(lambda x: x['t_calories'], readings))
+        res = []
+        for i in range(7):
+            if len(res) + i >= 7:
+                res[i] = cals[7 - i]
+            else:
+                res[i] = 0
 
-        return [list(map(lambda x:x['t_calories'],readings)), ]
+        return [res, [], []]
