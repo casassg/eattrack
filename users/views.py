@@ -52,6 +52,11 @@ class MessengerBotView(generic.View):
             for message in entry['messaging']:
                 fbid = message['sender']['id']
 
+                # Try and save the user
+                user = models.AppUser()
+                user.fbid = fbid
+                user.save()
+
                 # Check to make sure the received call is a message call
                 # This might be delivery, optin, postback for other events
 
@@ -64,7 +69,14 @@ class MessengerBotView(generic.View):
                     # 1.1 case: Quick reply with quantity
                     if ';' in quick_reply:
                         product, calories = quick_reply.split(';')
+
                         fb_bot.send_message(fbid, 'You are having %s calories' % calories)
+
+                        # Save new food
+                        reading = models.Reading()
+                        reading.calories = calories
+                        reading.user = user
+                        reading.product = product
                         continue
                     # 1.2 case: Quick reply with product
                     try:
@@ -101,7 +113,7 @@ class MessengerBotView(generic.View):
                         fb_bot.send_message(fbid, 'What\'s the closest guess?', topics=(topics[:5]))
 
                 # 3rd case: No message
-                elif 'text' in message['message'] and not models.AppUser.objects.filter(fbid=fbid).exists():
+                elif 'text' in message['message']:
                     initial_text(fbid, message['message']['text'])
                 else:
                     fb_bot.send_message(fbid, "I'm sorry, I couldn't understand you.")

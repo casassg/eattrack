@@ -1,13 +1,21 @@
 from __future__ import unicode_literals
 
+from uuid import uuid4
+
 from django.db import models
-
-
 # Create your models here.
+from django.template.defaultfilters import urlencode
+
+
+def f():
+    d = uuid4()
+    str = d.hex
+    return urlencode(str[0:16])
+
 
 class AppUser(models.Model):
-    _id = models.AutoField(primary_key=True)
-    fbid = models.CharField(max_length=200)
+    _id = models.CharField(max_length=16, default=f, unique=True)
+    fbid = models.CharField(max_length=200, )
 
 
 class Reading(models.Model):
