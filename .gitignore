@@ -2,5 +2,5 @@ env
 .idea
 db.sqlite3
 staticfiles
-*.pyc
+*/*.pyc
 

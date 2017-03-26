@@ -10,4 +10,5 @@ def extract(url):
 
     # predict with the model
     res = model.predict_by_url(url=url)
-    return map(lambda x: x['name'], sorted(res['outputs'][0]['data']['concepts'], key=lambda x: -x['value']))
+    return map(lambda x: x['name'], filter(lambda x: x['value'] > 0.5,
+                                           sorted(res['outputs'][0]['data']['concepts'], key=lambda x: -x['value'])))
