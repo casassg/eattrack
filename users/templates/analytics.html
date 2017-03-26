@@ -68,7 +68,10 @@
         });
         jQuery.get('{% url 'column_chart_json' %}?fbid={{ fbid }}', function (data) {
             var ctx = $("#barChar1").get(0).getContext("2d");
-            new Chart(ctx).Line(data);
+            new Chart(ctx, {
+                type: 'bar',
+                data: data
+            });
         });
 
     </script>
