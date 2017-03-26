@@ -11,10 +11,43 @@
             <div class="col-md-4">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">Last week stats</h3>
+                        <h3 class="panel-title">Last week calories</h3>
                     </div>
                     <div class="panel-body">
                         <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Last products eaten</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Long ago</th>
+                                <th>Calories</th>
+                            </tr>
+                            </thead>
+
+                            {% for prod in readings %}
+                                <tr>
+                                    <td>{{ prod.product | capfirst }}</td>
+                                    <td>{{ prod.timestamp | timesince }}</td>
+                                    <td>{{ prod.calories }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
