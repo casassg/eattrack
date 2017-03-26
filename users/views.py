@@ -156,8 +156,8 @@ class LineChartJSONView(BaseLineChartView):
         res = [0 for _ in range(7)]
         labels = self.get_labels()
         for day, cal in cals:
-            ind = labels.index(day)
-            if ind > 0 and ind < 7:
+            ind = labels.find(day)
+            if ind >= 0 and ind < 7:
                 res[ind] = cal
 
         return [res, [], []]
@@ -166,7 +166,7 @@ class LineChartJSONView(BaseLineChartView):
 class ColumnHighChartJSONView(BaseColumnsHighChartsView):
     title = ''
     yUnit = 'number of usages'
-    providers = ['All', 'All']
+    providers = ['All', ]
     credits = {"enabled": False}
 
     def get_most_consumed_products(self, fbid):
@@ -181,4 +181,4 @@ class ColumnHighChartJSONView(BaseColumnsHighChartsView):
 
     def get_data(self):
         fbid = self.request.GET.get('fbid', '')
-        return [[prod['count'] for prod in self.get_most_consumed_products(fbid)], []]
+        return [[prod['count'] for prod in self.get_most_consumed_products(fbid)], ]
