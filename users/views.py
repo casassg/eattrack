@@ -166,7 +166,7 @@ class LineChartJSONView(BaseLineChartView):
 class ColumnHighChartJSONView(BaseColumnsHighChartsView):
     title = ''
     yUnit = 'number of usages'
-    providers = ['All']
+    providers = ['All', 'All']
     credits = {"enabled": False}
 
     def get_most_consumed_products(self, fbid):
