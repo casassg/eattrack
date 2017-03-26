@@ -40,6 +40,11 @@ a.icon {
     margin-right: 5px;
 }
 
+canvas {
+  width: 100%;
+  height: auto;
+}
+
 img.icon {
     height: 70px;
     width: 70px;
