@@ -1,3 +1,4 @@
+import datetime as DT
 import json
 from datetime import datetime
 
@@ -140,7 +141,9 @@ def analytics(request, fbid):
 class LineChartJSONView(BaseLineChartView):
     def get_labels(self):
         """Return 7 labels."""
-        return ["Monday", "Tuesday", "March", "April", "May", "June", "July"]
+        today = DT.date.today()
+        week = [today - DT.timedelta(days=i) for i in range(7)]
+        return map(lambda x: x.strftime('%d/%m'), week)
 
     def get_data(self):
         """Return 3 datasets to plot."""
