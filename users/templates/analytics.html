@@ -17,6 +17,14 @@
                         <canvas id="myChart"></canvas>
                     </div>
                 </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Most consumed products</h3>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="barChar1"></canvas>
+                    </div>
+                </div>
             </div>
             <div class="col-md-8">
                 <div class="panel panel-default">
@@ -58,5 +66,10 @@
             var ctx = $("#myChart").get(0).getContext("2d");
             new Chart(ctx).Line(data);
         });
+        jQuery.get('{% url 'column_chart_json' %}?fbid={{ fbid }}', function (data) {
+            var ctx = $("#barChar1").get(0).getContext("2d");
+            new Chart(ctx).Line(data);
+        });
+
     </script>
 {% endblock %}

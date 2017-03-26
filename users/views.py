@@ -2,9 +2,11 @@ import datetime as DT
 import json
 from datetime import datetime
 
+from chartjs.views.columns import BaseColumnsHighChartsView
 from chartjs.views.lines import BaseLineChartView
 from django.conf import settings
 from django.db.models import Sum
+from django.db.models.aggregates import Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -148,14 +150,30 @@ class LineChartJSONView(BaseLineChartView):
     def get_data(self):
         """Return 3 datasets to plot."""
         fbid = self.request.GET.get('fbid', '')
-        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values('day')\
+        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values('day') \
             .annotate(t_calories=Sum('calories')).values('day', 't_calories')
         cals = list(map(lambda x: (x['day'].strftime('%d/%m'), x['t_calories']), readings))
         res = [0 for _ in range(7)]
         labels = self.get_labels()
-        for day,cal in cals:
+        for day, cal in cals:
             ind = labels.index(day)
             if ind > 0 and ind < 7:
                 res[ind] = cal
 
         return [res, [], []]
+
+
+class ColumnHighChartJSONView(BaseColumnsHighChartsView):
+    def get_most_consumed_products(self, fbid):
+        prods = models.Reading.objects.filter(user_id=fbid).values('product') \
+            .annotate(count=Count('product')).values('product', 'count').order_by('-count')
+        return prods[:7]
+
+    def get_labels(self):
+        """Return 7 labels."""
+        fbid = self.request.GET.get('fbid', '')
+        return [prod['product'] for prod in self.get_most_consumed_products(fbid)]
+
+    def get_data(self):
+        fbid = self.request.GET.get('fbid', '')
+        return [[prod['count'] for prod in self.get_most_consumed_products(fbid)], []]
