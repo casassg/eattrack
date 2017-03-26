@@ -151,9 +151,9 @@ class LineChartJSONView(BaseLineChartView):
         cals = list(map(lambda x: x['t_calories'], readings))
         res = []
         for i in range(7):
-            if len(res) + i >= 7:
-                res[i] = cals[7 - i]
+            if len(cals) + i >= 7:
+                res += [cals[6 - i], ]
             else:
-                res[i] = 0
+                res += [0, ]
 
         return [res, [], []]
