@@ -84,7 +84,7 @@ class MessengerBotView(generic.View):
                     }
 
                     qr = fb_bot.create_quick_replies_quantities(top_funct, calories, quick_reply)
-                    fb_bot.send_message(fbid, "How much are you eating?", quick_replies=qr)
+                    fb_bot.send_message(fbid, "How much are you having?", quick_replies=qr)
                 # 2nd case: Image sent to be recognized
                 elif 'attachments' in message['message'] and 'image' in map(lambda x: x['type'],
                                                                             message['message']['attachments']):
