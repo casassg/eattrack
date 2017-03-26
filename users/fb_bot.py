@@ -31,5 +31,5 @@ def create_quick_replies(sel_topics):
 
 
 def create_quick_replies_quantities(dictio, total, product):
-    qr = [{'content_type': 'text', 'title': topic, 'payload': product + ';' + str(f(total))} for topic, f in dictio.items()]
+    qr = [{'content_type': 'text', 'title': topic, 'payload': product + ';' + str(round(f(total),2))} for topic, f in dictio.items()]
     return qr
