@@ -3,11 +3,11 @@ from users import models
 
 
 class AppUserAdmin(admin.ModelAdmin):
-    fields = ('_id', 'fbid',)
+    list_display = ('_id', 'fbid',)
 
 
 class ReadingAdmin(admin.ModelAdmin):
-    fields = ('user', 'product', 'calories', 'timestamp')
+    list_display = ('user', 'product', 'calories', 'timestamp')
     list_filter = ('product', 'user',)
     ordering = ('calories',)
     list_per_page = 200
