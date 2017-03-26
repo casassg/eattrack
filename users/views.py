@@ -69,7 +69,7 @@ class MessengerBotView(generic.View):
                     # 1.2 case: Quick reply with product
                     try:
                         product = quick_reply
-                        calories = int(wolfram.get_calories(product))
+                        calories = float(wolfram.get_calories(product))
                     except ValueError as e:
                         fb_bot.send_message(fbid, 'I couldn\'t find calories for this product')
                         continue
