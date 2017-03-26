@@ -5,9 +5,7 @@ from datetime import datetime
 from chartjs.views.columns import BaseColumnsHighChartsView
 from chartjs.views.lines import BaseLineChartView
 from django.conf import settings
-from django.db.models import Sum
 from django.db.models.aggregates import Count
-from django.db.models.functions import TruncDay
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -150,17 +148,13 @@ class LineChartJSONView(BaseLineChartView):
     def get_data(self):
         """Return 3 datasets to plot."""
         fbid = self.request.GET.get('fbid', '')
-        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values('day') \
-            .annotate(t_calories=Sum('calories')).values('day', 't_calories')
-        cals = list(map(lambda x: (x['day'].strftime('%d/%m'), x['t_calories']), readings))
+        readings = models.Reading.objects.filter(user_id=fbid).values('calories', 'timestamp')
         res = [0 for _ in range(7)]
         labels = self.get_labels()
-        for day, cal in cals:
-            try:
-                ind = labels.index(day)
-                res[ind] = cal
-            except ValueError:
-                pass
+        for i, label in enumerate(labels):
+            for read in readings:
+                if label == read['timestamp'].strftime('%d/%m'):
+                    res[i] += read['calories']
         return [res, [], []]
 
 
