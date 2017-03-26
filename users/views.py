@@ -142,7 +142,7 @@ class LineChartJSONView(BaseLineChartView):
     def get_labels(self):
         """Return 7 labels."""
         today = DT.date.today()
-        week = [today - DT.timedelta(days=i) for i in range(7)]
+        week = [today - DT.timedelta(days=6-i) for i in range(7)]
         return map(lambda x: x.strftime('%d/%m'), week)
 
     def get_data(self):
