@@ -156,10 +156,11 @@ class LineChartJSONView(BaseLineChartView):
         res = [0 for _ in range(7)]
         labels = self.get_labels()
         for day, cal in cals:
-            ind = labels.find(day)
-            if ind >= 0 and ind < 7:
+            try:
+                ind = labels.index(day)
                 res[ind] = cal
-
+            except ValueError:
+                pass
         return [res, [], []]
 
 
