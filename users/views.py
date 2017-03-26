@@ -149,4 +149,4 @@ class LineChartJSONView(BaseLineChartView):
             'day').annotate(
             t_calories=Sum('calories')).values('day', 't_calories')
 
-        return [readings, ]
+        return [list(map(lambda x:x['t_calories'],readings)), ]
