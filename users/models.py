@@ -15,7 +15,7 @@ def f():
 
 class AppUser(models.Model):
     _id = models.CharField(max_length=16, default=f, unique=True)
-    fbid = models.CharField(max_length=200, )
+    fbid = models.CharField(max_length=200, primary_key=True)
 
 
 class Reading(models.Model):
