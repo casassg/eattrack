@@ -60,11 +60,18 @@ class MessengerBotView(generic.View):
                 # 0th case: No message
                 if 'message' not in message:
                     continue
-                # 1st case: Quick reply with aliment
+
                 if 'quick_reply' in message['message']:
-                    selected = message['message']['quick_reply']['payload']
+                    quick_reply = message['message']['quick_reply']['payload']
+                    # 1.1 case: Quick reply with quantity
+                    if ';' in quick_reply:
+                        product, calories = quick_reply.split(';')
+                        fb_bot.send_message(fbid, 'You are having %s calories' % calories)
+                        continue
+                    # 1.2 case: Quick reply with product
                     try:
-                        calories = int(wolfram.get_calories(selected))
+                        product = quick_reply
+                        calories = int(wolfram.get_calories(product))
                     except ValueError as e:
                         fb_bot.send_message(fbid, 'I couldn\'t find calories for this product')
                         continue
@@ -78,9 +85,8 @@ class MessengerBotView(generic.View):
                         '2 of them': lambda x: x * 2,
                     }
 
-                    qr = fb_bot.create_quick_replies_quantities(top_funct, calories, selected)
-
-                    fb_bot.send_message(fbid, "How much did you eat?", quick_replies=qr)
+                    qr = fb_bot.create_quick_replies_quantities(top_funct, calories, quick_reply)
+                    fb_bot.send_message(fbid, "How much are you eating?", quick_replies=qr)
                 # 2nd case: Image sent to be recognized
                 elif 'attachments' in message['message'] and 'image' in map(lambda x: x['type'],
                                                                             message['message']['attachments']):
