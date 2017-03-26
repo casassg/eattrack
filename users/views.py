@@ -1,15 +1,16 @@
 import json
-
 from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponse
 # Create your views here.
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import generic
 # Helper function
 from django.views.decorators.csrf import csrf_exempt
 from users import food, wolfram, fb_bot, models
+from users.utils import reverse
 
 OTHER_VALUE = 'Other'
 
@@ -118,8 +119,18 @@ class MessengerBotView(generic.View):
 
                 # 3rd case: No message
                 elif 'text' in message['message']:
-                    initial_text(fbid, message['message']['text'])
+                    text = message['message']['text']
+                    if 'stats' in text or 'data' in text:
+                        url = reverse('user_stats', kwargs={'fbid': fbid}, request=request)
+                        fb_bot.send_message(fbid, url)
+                        continue
+                    initial_text(fbid, text)
                 else:
                     fb_bot.send_message(fbid, "I'm sorry, I couldn't understand you.")
 
         return HttpResponse()
+
+
+def analytics(request, fbid):
+    readings = models.Reading.objects.filter(user_id=fbid)
+    return render(request, 'analytics.html', context={'readings': readings}, )
