@@ -1,5 +1,7 @@
 import json
 
+from datetime import datetime
+
 from django.conf import settings
 from django.http import HttpResponse
 # Create your views here.
@@ -72,11 +74,13 @@ class MessengerBotView(generic.View):
 
                         fb_bot.send_message(fbid, 'You are having %s calories' % calories)
 
-                        # Save new food
+                        # Save new food reading
                         reading = models.Reading()
                         reading.calories = calories
                         reading.user = user
                         reading.product = product
+                        reading.timestamp = datetime.now()
+                        reading.save()
                         continue
                     # 1.2 case: Quick reply with product
                     try:
