@@ -1,13 +1,14 @@
 import json
 from datetime import datetime
 
+from chartjs.views.lines import BaseLineChartView
 from django.conf import settings
+from django.db.models import Sum
+from django.db.models.functions import TruncDay
 from django.http import HttpResponse
-# Create your views here.
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import generic
-# Helper function
 from django.views.decorators.csrf import csrf_exempt
 from users import food, wolfram, fb_bot, models
 from users.utils import reverse
@@ -133,4 +134,19 @@ class MessengerBotView(generic.View):
 
 def analytics(request, fbid):
     readings = models.Reading.objects.filter(user_id=fbid)
-    return render(request, 'analytics.html', context={'readings': readings}, )
+    return render(request, 'analytics.html', context={'readings': readings, 'fbid': fbid}, )
+
+
+class LineChartJSONView(BaseLineChartView):
+    def get_labels(self):
+        """Return 7 labels."""
+        return ["Monday", "Tuesday", "March", "April", "May", "June", "July"]
+
+    def get_data(self):
+        """Return 3 datasets to plot."""
+        fbid = self.request.GET.get('fbid', '')
+        readings = models.Reading.objects.filter(user_id=fbid).annotate(day=TruncDay('timestamp')).values(
+            'day').annotate(
+            t_calories=Sum('calories')).values('day', 't_calories')
+
+        return [readings, ]
