@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models.aggregates import Count
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
@@ -82,7 +83,7 @@ class MessengerBotView(generic.View):
                         reading.calories = calories
                         reading.user = user
                         reading.product = product
-                        reading.timestamp = datetime.now()
+                        reading.timestamp = timezone.now()
                         reading.save()
                         continue
                     # 1.2 case: Quick reply with product
